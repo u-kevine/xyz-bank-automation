@@ -3,4 +3,4 @@ __pycache__/
 .pytest_cache/
 .venv/
 allure-results/
-allure-report/
+allure-report/debug_*.png

@@ -1,3 +1,5 @@
+import time
+
 import allure
 from selenium.webdriver.common.by import By
 
@@ -8,7 +10,7 @@ class AccountPage(BasePage):
     WELCOME_NAME = (By.CSS_SELECTOR, "span.fontBig")
     NO_ACCOUNT_MSG = (By.XPATH, "//span[@ng-show='noAccount']")
     ACCOUNT_SELECT = (By.ID, "accountSelect")
-    ACCOUNT_INFO = (By.XPATH, "//div[@ng-hide='noAccount']//strong")   # [number, balance, currency]
+    ACCOUNT_INFO = (By.XPATH, "//div[@ng-hide='noAccount']//strong")  
     TRANSACTIONS_TAB = (By.XPATH, "//button[@ng-click='transactions()']")
     DEPOSIT_TAB = (By.XPATH, "//button[@ng-click='deposit()']")
     WITHDRAW_TAB = (By.XPATH, "//button[@ng-click='withdrawl()']")
@@ -17,6 +19,10 @@ class AccountPage(BasePage):
     SUBMIT = (By.CSS_SELECTOR, "form button[type='submit']")
     MESSAGE = (By.CSS_SELECTOR, "span.error")
     LOGOUT = (By.CSS_SELECTOR, "button.logout")
+
+
+    TRANSACTION_SETTLE_SECONDS = 3
+    _last_transaction_at = 0.0
 
     def wait_loaded(self):
         self.find(self.WELCOME_NAME)
@@ -57,6 +63,7 @@ class AccountPage(BasePage):
     def _submit_amount(self, amount):
         self.type(self.AMOUNT, amount)
         self.click(self.SUBMIT)
+        self._last_transaction_at = time.monotonic()
 
     @allure.step("Deposit {amount}")
     def deposit(self, amount):
@@ -82,14 +89,17 @@ class AccountPage(BasePage):
         return self.find(self.AMOUNT).get_attribute("validationMessage")
 
     # ---- navigation ------------------------------------------------------
+    @allure.step("Open transactions")
+    def open_transactions(self):
+        from pages.transactions_page import TransactionsPage
+        elapsed = time.monotonic() - self._last_transaction_at
+        if elapsed < self.TRANSACTION_SETTLE_SECONDS:
+            time.sleep(self.TRANSACTION_SETTLE_SECONDS - elapsed)
+        self.click(self.TRANSACTIONS_TAB)
+        return TransactionsPage(self.driver).wait_loaded()
+
     @allure.step("Log out")
     def logout(self):
         from pages.customer_login_page import CustomerLoginPage
         self.click(self.LOGOUT)
         return CustomerLoginPage(self.driver).wait_loaded()
-
-    @allure.step("Open transactions")
-    def open_transactions(self):
-        from pages.transactions_page import TransactionsPage
-        self.click(self.TRANSACTIONS_TAB)
-        return TransactionsPage(self.driver).wait_loaded()

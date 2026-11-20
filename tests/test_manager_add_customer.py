@@ -19,9 +19,13 @@ def test_add_customer_valid(home):
     alert = add_page.add_customer(customer["first_name"], customer["last_name"], customer["post_code"])
 
     assert alert and MESSAGES["customer_added"] in alert, f"Unexpected alert: {alert}"
+    row = add_page.open_customers().find_customer(customer["first_name"], customer["last_name"])
+    assert row is not None, "New customer is missing from the Customers list"
+    assert row["post_code"] == customer["post_code"]
 
 
-@pytest.mark.xfail(reason="DEF-01: customer name accepts digits and special characters")
+@pytest.mark.xfail(reason="DEF-01: customer name accepts digits and special characters",
+                   raises=AssertionError)
 @pytest.mark.parametrize("data", INVALID_NAMES, ids=[d["id"] for d in INVALID_NAMES])
 def test_reject_non_alphabetic_names(home, data):
     add_page = home.login_as_manager().open_add_customer()
@@ -32,7 +36,8 @@ def test_reject_non_alphabetic_names(home, data):
         f"Name with invalid characters was accepted: {alert}"
 
 
-@pytest.mark.xfail(reason="DEF-02: postcode accepts non-numeric characters")
+@pytest.mark.xfail(reason="DEF-02: postcode accepts non-numeric characters",
+                   raises=AssertionError)
 @pytest.mark.parametrize("post_code", INVALID_POST_CODES)
 def test_reject_non_numeric_post_code(home, post_code):
     customer = unique_customer(post_code=post_code)
@@ -62,7 +67,3 @@ def test_duplicate_customer_rejected(home):
 
     assert second_alert and MESSAGES["duplicate_customer"] in second_alert, \
         f"Duplicate customer was not rejected: {second_alert}"
-    
-    row = add_page.open_customers().find_customer(customer["first_name"], customer["last_name"])
-    assert row is not None, "New customer is missing from the Customers list"
-    assert row["post_code"] == customer["post_code"]

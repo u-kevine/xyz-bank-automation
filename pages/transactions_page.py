@@ -26,18 +26,12 @@ class TransactionsPage(BasePage):
         return result
 
     @allure.step("Wait for at least {count} transaction(s)")
-    def wait_for_transactions(self, count, attempts=3):
-        """A transaction made a moment ago can be missing from the list the first time it
-        opens. Re-open the view (Back -> Transactions) until it shows up."""
-        from pages.account_page import AccountPage
-        for _ in range(attempts):
-            try:
-                WebDriverWait(self.driver, 3).until(lambda d: len(self.transactions()) >= count)
-                return self.transactions()
-            except TimeoutException:
-                self.click(self.BACK)
-                AccountPage(self.driver).wait_loaded().click(AccountPage.TRANSACTIONS_TAB)
-                self.wait_loaded()
+    def wait_for_transactions(self, count, timeout=5):
+        """Waits for the table to render the expected rows; returns whatever is shown."""
+        try:
+            WebDriverWait(self.driver, timeout).until(lambda d: len(self.transactions()) >= count)
+        except TimeoutException:
+            pass   # return what is there; the test's assertion reports the mismatch
         return self.transactions()
 
     def reset_visible(self):
