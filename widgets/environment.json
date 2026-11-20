@@ -1,0 +1,1 @@
+[{"values":["https://www.globalsqa.com/angularJs-protractor/BankingProject/#/login"],"name":"Base.URL"},{"values":["chrome"],"name":"Browser"},{"values":["True"],"name":"Headless"},{"values":["http://selenium:4444"],"name":"Remote.Grid"},{"values":["3.12.16"],"name":"Python"}]
