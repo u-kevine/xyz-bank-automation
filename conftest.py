@@ -1,3 +1,4 @@
+from utils.data_generator import unique_customer
 import pytest
 
 from pages.home_page import HomePage
@@ -16,3 +17,13 @@ def driver():
 def home(driver):
     """The bank app's home page, already open."""
     return HomePage(driver).open()
+
+
+@pytest.fixture
+def new_customer(home):
+    """Creates a unique customer (no account yet) and returns its data."""
+    customer = unique_customer()
+    home.login_as_manager().open_add_customer().add_customer(
+        customer["first_name"], customer["last_name"], customer["post_code"])
+    home.go_home()
+    return customer

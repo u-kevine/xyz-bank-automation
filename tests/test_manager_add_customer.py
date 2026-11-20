@@ -62,3 +62,7 @@ def test_duplicate_customer_rejected(home):
 
     assert second_alert and MESSAGES["duplicate_customer"] in second_alert, \
         f"Duplicate customer was not rejected: {second_alert}"
+    
+    row = add_page.open_customers().find_customer(customer["first_name"], customer["last_name"])
+    assert row is not None, "New customer is missing from the Customers list"
+    assert row["post_code"] == customer["post_code"]

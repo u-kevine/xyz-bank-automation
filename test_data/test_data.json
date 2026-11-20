@@ -1,4 +1,9 @@
 {
+  "existing_customers": [
+    {"first_name": "Hermoine", "last_name": "Granger"},
+    {"first_name": "Harry", "last_name": "Potter"},
+    {"first_name": "Ron", "last_name": "Weasly"}
+  ],
   "valid_customer": {"first_name": "Ada", "last_name": "Lovelace", "post_code": "10001"},
   "invalid_names": [
     {"id": "digits_in_first_name", "first_name": "Ada123", "last_name": "Lovelace"},
@@ -6,8 +11,10 @@
     {"id": "digits_and_symbols", "first_name": "J0hn#", "last_name": "D0e$"}
   ],
   "invalid_post_codes": ["E1A2B", "ABCDE", "12-34"],
+  "currencies": ["Dollar", "Pound", "Rupee"],
   "messages": {
     "customer_added": "Customer added successfully",
-    "duplicate_customer": "Customer may be duplicate"
+    "duplicate_customer": "Customer may be duplicate",
+    "account_created": "Account created successfully"
   }
 }

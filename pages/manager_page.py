@@ -20,3 +20,13 @@ class ManagerPage(BasePage):
         from pages.add_customer_page import AddCustomerPage
         self.click(self.ADD_CUSTOMER_TAB)
         return AddCustomerPage(self.driver).wait_loaded()
+
+    def open_open_account(self):
+        from pages.open_account_page import OpenAccountPage
+        self.click(self.OPEN_ACCOUNT_TAB)
+        return OpenAccountPage(self.driver).wait_loaded()
+
+    def open_customers(self):
+        from pages.customers_page import CustomersPage
+        self.click(self.CUSTOMERS_TAB)
+        return CustomersPage(self.driver).wait_loaded()
