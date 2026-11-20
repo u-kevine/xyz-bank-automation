@@ -1,13 +1,17 @@
+import allure
 import pytest
 
 from utils.data_loader import get
 
 W = get("withdraw")
 MESSAGES = get("messages")
-pytestmark = [pytest.mark.customer, pytest.mark.regression]
+pytestmark = [pytest.mark.customer, pytest.mark.regression,
+              allure.epic("XYZ Bank"), allure.feature("US2 - Customer"), allure.story("Withdraw")]
 
 
 @pytest.mark.smoke
+@allure.title("Withdraw within the balance and the balance updates")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_withdraw_within_balance(account):
     account.deposit(W["opening_deposit"])
 
@@ -17,6 +21,8 @@ def test_withdraw_within_balance(account):
     assert account.balance() == W["opening_deposit"] - W["valid_amount"]
 
 
+@allure.title("Withdraw the exact balance")
+@allure.severity(allure.severity_level.NORMAL)
 def test_withdraw_exact_balance(account):
     account.deposit(300)
 
@@ -26,6 +32,8 @@ def test_withdraw_exact_balance(account):
     assert account.balance() == 0
 
 
+@allure.title("Withdrawal above the balance is rejected")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_withdraw_more_than_balance(account):
     account.deposit(100)
 
@@ -36,6 +44,8 @@ def test_withdraw_more_than_balance(account):
 
 
 @pytest.mark.parametrize("amount", W["invalid_amounts"])
+@allure.title("Zero or negative withdrawal is rejected")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_withdraw_invalid_amount(account, amount):
     account.deposit(100)
 

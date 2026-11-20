@@ -1,9 +1,11 @@
+import allure
 import pytest
 
 from utils.data_generator import unique_customer
 from utils.data_loader import get
 
-pytestmark = [pytest.mark.manager, pytest.mark.regression]
+pytestmark = [pytest.mark.manager, pytest.mark.regression,
+              allure.epic("XYZ Bank"), allure.feature("US1 - Bank Manager"), allure.story("Add customer")]
 
 MESSAGES = get("messages")
 INVALID_NAMES = get("invalid_names")
@@ -11,6 +13,8 @@ INVALID_POST_CODES = get("invalid_post_codes")
 
 
 @pytest.mark.smoke
+@allure.title("Add a customer with valid data")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_add_customer_valid(home):
     base = get("valid_customer")
     customer = unique_customer(base["first_name"], base["last_name"], base["post_code"])
@@ -24,9 +28,12 @@ def test_add_customer_valid(home):
     assert row["post_code"] == customer["post_code"]
 
 
+@allure.issue("DEF-01")
 @pytest.mark.xfail(reason="DEF-01: customer name accepts digits and special characters",
                    raises=AssertionError)
 @pytest.mark.parametrize("data", INVALID_NAMES, ids=[d["id"] for d in INVALID_NAMES])
+@allure.title("Reject customer names that are not alphabetic")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_reject_non_alphabetic_names(home, data):
     add_page = home.login_as_manager().open_add_customer()
 
@@ -36,9 +43,12 @@ def test_reject_non_alphabetic_names(home, data):
         f"Name with invalid characters was accepted: {alert}"
 
 
+@allure.issue("DEF-02")
 @pytest.mark.xfail(reason="DEF-02: postcode accepts non-numeric characters",
                    raises=AssertionError)
 @pytest.mark.parametrize("post_code", INVALID_POST_CODES)
+@allure.title("Reject postcodes that are not numeric")
+@allure.severity(allure.severity_level.CRITICAL)
 def test_reject_non_numeric_post_code(home, post_code):
     customer = unique_customer(post_code=post_code)
     add_page = home.login_as_manager().open_add_customer()
@@ -49,6 +59,8 @@ def test_reject_non_numeric_post_code(home, post_code):
         f"Postcode '{post_code}' was accepted: {alert}"
 
 
+@allure.title("Required fields are enforced")
+@allure.severity(allure.severity_level.NORMAL)
 def test_required_first_name(home):
     add_page = home.login_as_manager().open_add_customer()
 
@@ -58,6 +70,8 @@ def test_required_first_name(home):
     assert add_page.validation_message("first_name"), "No validation message on empty first name"
 
 
+@allure.title("Duplicate customer is rejected")
+@allure.severity(allure.severity_level.NORMAL)
 def test_duplicate_customer_rejected(home):
     customer = unique_customer()
     add_page = home.login_as_manager().open_add_customer()

@@ -1,0 +1,5 @@
+[
+  {"name": "Known defects (logged)", "matchedStatuses": ["skipped"], "messageRegex": ".*DEF-\\d+.*"},
+  {"name": "Product defects (new failures)", "matchedStatuses": ["failed"]},
+  {"name": "Test or environment problems", "matchedStatuses": ["broken"]}
+]
