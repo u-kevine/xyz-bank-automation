@@ -23,6 +23,7 @@ def test_withdrawal_listed(account):
     assert (50, "Debit") in summary, f"Withdrawal missing: {summary}"
 
 
+@pytest.mark.xfail(reason="DEF-03: customer can reset (erase) transaction history")
 def test_history_cannot_be_reset(account):
     account.deposit(250)
     page = account.open_transactions()

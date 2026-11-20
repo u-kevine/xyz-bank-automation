@@ -34,3 +34,16 @@
 - **Actual:** Alert "Customer added successfully with customer id :6".
 - **Test data that reproduces it:** `E1A2B`, `ABCDE`, `12-34`.
 - **Environment:** Chrome (headless), XYZ Bank demo site,
+
+## DEF-03: Customer can reset (erase) their transaction history
+
+- **Requirement:** US2, Transaction Security: customers should not be able to reset or alter their transaction history.
+- **Severity:** Critical (financial records can be erased by the account holder).
+- **Steps to reproduce:**
+  1. Log in as a customer with an account.
+  2. Click **Deposit**, enter `250`, click **Deposit**.
+  3. Click **Transactions**. One Credit row of 250 is listed.
+  4. Click **Reset**.
+- **Expected:** No Reset option, or the history is unchanged.
+- **Actual:** All transactions disappear from the list. Balance after Reset: _<fill in from your manual check>_.
+- **Environment:** Chrome (headless), XYZ Bank demo site.
