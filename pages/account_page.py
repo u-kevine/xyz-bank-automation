@@ -10,7 +10,7 @@ class AccountPage(BasePage):
     WELCOME_NAME = (By.CSS_SELECTOR, "span.fontBig")
     NO_ACCOUNT_MSG = (By.XPATH, "//span[@ng-show='noAccount']")
     ACCOUNT_SELECT = (By.ID, "accountSelect")
-    ACCOUNT_INFO = (By.XPATH, "//div[@ng-hide='noAccount']//strong")  
+    ACCOUNT_INFO = (By.XPATH, "//div[@ng-hide='noAccount']//strong")   
     TRANSACTIONS_TAB = (By.XPATH, "//button[@ng-click='transactions()']")
     DEPOSIT_TAB = (By.XPATH, "//button[@ng-click='deposit()']")
     WITHDRAW_TAB = (By.XPATH, "//button[@ng-click='withdrawl()']")
@@ -20,8 +20,6 @@ class AccountPage(BasePage):
     MESSAGE = (By.CSS_SELECTOR, "span.error")
     LOGOUT = (By.CSS_SELECTOR, "button.logout")
 
-
-    TRANSACTION_SETTLE_SECONDS = 3
     _last_transaction_at = 0.0
 
     def wait_loaded(self):
@@ -79,6 +77,15 @@ class AccountPage(BasePage):
         self._submit_amount(amount)
         return self
 
+    @allure.step("Wait until the next transaction falls in a new second")
+    def wait_for_new_second(self, min_gap=1.1):
+        """Guarantees the next transaction gets a later timestamp (to the second) than the last one.
+        Used only where a test makes several transactions and must stay clear of DEF-04."""
+        elapsed = time.monotonic() - self._last_transaction_at
+        if elapsed < min_gap:
+            time.sleep(min_gap - elapsed)
+        return self
+
     def message(self, timeout=3):
         """Text of the status message, or '' if none is shown."""
         if self.is_visible(self.MESSAGE, timeout=timeout):
@@ -92,9 +99,6 @@ class AccountPage(BasePage):
     @allure.step("Open transactions")
     def open_transactions(self):
         from pages.transactions_page import TransactionsPage
-        elapsed = time.monotonic() - self._last_transaction_at
-        if elapsed < self.TRANSACTION_SETTLE_SECONDS:
-            time.sleep(self.TRANSACTION_SETTLE_SECONDS - elapsed)
         self.click(self.TRANSACTIONS_TAB)
         return TransactionsPage(self.driver).wait_loaded()
 

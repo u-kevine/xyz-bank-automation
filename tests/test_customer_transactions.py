@@ -2,9 +2,9 @@ import pytest
 
 pytestmark = [pytest.mark.customer, pytest.mark.regression]
 
-
 def test_deposit_listed(account):
     account.deposit(250)
+    account.wait_for_new_second()
 
     rows = account.open_transactions().wait_for_transactions(1)
 
@@ -14,7 +14,9 @@ def test_deposit_listed(account):
 
 def test_withdrawal_listed(account):
     account.deposit(250)
+    account.wait_for_new_second()
     account.withdraw(50)
+    account.wait_for_new_second()
 
     rows = account.open_transactions().wait_for_transactions(2)
 
@@ -27,8 +29,10 @@ def test_withdrawal_listed(account):
                    raises=AssertionError)
 def test_history_cannot_be_reset(account):
     account.deposit(250)
+    account.wait_for_new_second()
     page = account.open_transactions()
     before = page.wait_for_transactions(1)
+    assert before, "Precondition failed: deposit not listed before Reset"
 
     if page.reset_visible():
         page.reset()
