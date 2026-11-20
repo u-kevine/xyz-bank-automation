@@ -12,9 +12,15 @@
   ],
   "invalid_post_codes": ["E1A2B", "ABCDE", "12-34"],
   "currencies": ["Dollar", "Pound", "Rupee"],
+  "deposit": {
+    "valid_amounts": [1, 500, 99999],
+    "invalid_amounts": [0, -100]
+  },
   "messages": {
     "customer_added": "Customer added successfully",
     "duplicate_customer": "Customer may be duplicate",
-    "account_created": "Account created successfully"
+    "account_created": "Account created successfully",
+    "no_account": "Please open an account with us.",
+    "deposit_success": "Deposit Successful"
   }
 }

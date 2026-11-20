@@ -1,5 +1,7 @@
 import pytest
 
+from pages.customer_login_page import CustomerLoginPage
+
 from utils.data_generator import full_name
 from utils.data_loader import get
 
@@ -19,6 +21,10 @@ def test_open_account_for_new_customer(home, new_customer, currency):
     account_no = alert.split(":")[-1].strip()
     row = manager.open_customers().find_customer(new_customer["first_name"], new_customer["last_name"])
     assert account_no in row["accounts"], f"Account {account_no} not listed for the customer"
+    account = home.go_home().go_to_customer_login().login(full_name(new_customer))
+    assert account.account_number() == account_no
+    assert account.balance() == 0
+    assert account.currency() == currency
 
 
 def test_new_customer_available_for_account(home, new_customer):
@@ -60,3 +66,19 @@ def test_delete_new_customer_with_account(home, new_customer):
     customers.delete_customer(new_customer["first_name"], new_customer["last_name"])
 
     assert customers.find_customer(new_customer["first_name"], new_customer["last_name"]) is None
+
+def test_no_access_without_account(home, new_customer):
+    account = home.go_to_customer_login().login(full_name(new_customer))
+
+    assert account.has_no_account_message(), "'No account' message is not shown"
+    assert account.no_account_message() == MESSAGES["no_account"]
+    assert not account.can_transact(), "Deposit/Withdraw available without an account"
+
+
+def test_deleted_customer_cannot_log_in(home, customer_with_account):
+    c = customer_with_account
+    home.login_as_manager().open_customers().delete_customer(c["first_name"], c["last_name"])
+
+    login_names = home.go_home().go_to_customer_login().customer_names()
+
+    assert full_name(c) not in login_names, f"Deleted customer {full_name(c)} can still log in"

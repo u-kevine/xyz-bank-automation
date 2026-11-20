@@ -4,6 +4,7 @@ import pytest
 from pages.home_page import HomePage
 from utils.driver_factory import create_driver
 
+from utils.data_generator import full_name, unique_customer
 
 @pytest.fixture
 def driver():
@@ -27,3 +28,16 @@ def new_customer(home):
         customer["first_name"], customer["last_name"], customer["post_code"])
     home.go_home()
     return customer
+
+@pytest.fixture
+def customer_with_account(home, new_customer):
+    """A unique customer with one Dollar account (balance 0)."""
+    home.login_as_manager().open_open_account().open_account(full_name(new_customer), "Dollar")
+    home.go_home()
+    return new_customer
+
+
+@pytest.fixture
+def account(home, customer_with_account):
+    """Logged in as a fresh customer with balance 0, ready to transact."""
+    return home.go_to_customer_login().login(full_name(customer_with_account))
