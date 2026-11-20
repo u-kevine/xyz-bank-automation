@@ -1,0 +1,97 @@
+name: UI tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   
+
+concurrency:
+  group: ui-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Validate test data
+        run: python3 -m json.tool test_data/test_data.json > /dev/null
+
+      - name: Build test image
+        run: docker compose build
+
+      - name: Run tests in Docker
+        run: |
+          mkdir -p allure-results
+          HOST_UID=$(id -u) HOST_GID=$(id -g) \
+            docker compose up --abort-on-container-exit --exit-code-from tests
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down
+
+      - name: Load report history from gh-pages
+        if: always()
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Set up Java (for Allure)
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate Allure report
+        if: always()
+        run: |
+          if [ -d gh-pages/history ]; then cp -r gh-pages/history allure-results/; fi
+          cat > allure-results/executor.json <<JSON
+          {"name": "GitHub Actions", "type": "github",
+           "buildName": "Run #${{ github.run_number }}",
+           "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+           "reportUrl": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"}
+          JSON
+          npx --yes allure-commandline@2.32.0 generate allure-results --clean -o allure-report
+
+      - name: Write run summary
+        if: always()
+        run: |
+          S=allure-report/widgets/summary.json
+          if [ -f "$S" ]; then
+            {
+              echo "## UI test results"
+              echo "| Passed | Failed | Broken | Known defects (xfail) | Total |"
+              echo "|---|---|---|---|---|"
+              jq -r '.statistic | "| \(.passed) | \(.failed) | \(.broken) | \(.skipped) | \(.total) |"' "$S"
+              echo
+              echo "Full report: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+          retention-days: 14
+
+      - name: Publish report to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
