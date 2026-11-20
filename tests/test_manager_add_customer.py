@@ -21,6 +21,7 @@ def test_add_customer_valid(home):
     assert alert and MESSAGES["customer_added"] in alert, f"Unexpected alert: {alert}"
 
 
+@pytest.mark.xfail(reason="DEF-01: customer name accepts digits and special characters")
 @pytest.mark.parametrize("data", INVALID_NAMES, ids=[d["id"] for d in INVALID_NAMES])
 def test_reject_non_alphabetic_names(home, data):
     add_page = home.login_as_manager().open_add_customer()
@@ -31,6 +32,7 @@ def test_reject_non_alphabetic_names(home, data):
         f"Name with invalid characters was accepted: {alert}"
 
 
+@pytest.mark.xfail(reason="DEF-02: postcode accepts non-numeric characters")
 @pytest.mark.parametrize("post_code", INVALID_POST_CODES)
 def test_reject_non_numeric_post_code(home, post_code):
     customer = unique_customer(post_code=post_code)
