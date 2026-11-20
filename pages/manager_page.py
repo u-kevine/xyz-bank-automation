@@ -15,3 +15,8 @@ class ManagerPage(BasePage):
     def tabs_visible(self):
         return all(self.is_visible(tab) for tab in
                    (self.ADD_CUSTOMER_TAB, self.OPEN_ACCOUNT_TAB, self.CUSTOMERS_TAB))
+
+    def open_add_customer(self):
+        from pages.add_customer_page import AddCustomerPage
+        self.click(self.ADD_CUSTOMER_TAB)
+        return AddCustomerPage(self.driver).wait_loaded()

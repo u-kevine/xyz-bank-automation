@@ -1,0 +1,13 @@
+{
+  "valid_customer": {"first_name": "Ada", "last_name": "Lovelace", "post_code": "10001"},
+  "invalid_names": [
+    {"id": "digits_in_first_name", "first_name": "Ada123", "last_name": "Lovelace"},
+    {"id": "special_chars_in_last_name", "first_name": "Ada", "last_name": "Love@ce!"},
+    {"id": "digits_and_symbols", "first_name": "J0hn#", "last_name": "D0e$"}
+  ],
+  "invalid_post_codes": ["E1A2B", "ABCDE", "12-34"],
+  "messages": {
+    "customer_added": "Customer added successfully",
+    "duplicate_customer": "Customer may be duplicate"
+  }
+}
