@@ -74,13 +74,24 @@ def pytest_runtest_makereport(item, call):
                 pass
 
 
+def _empty_folder(folder):
+    """Delete everything inside folder but keep the folder itself.
+    It may be a Docker volume mount point, which cannot be removed from inside the container."""
+    for item in folder.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+
+
 def pytest_sessionstart(session):
-    """Write run environment info and defect categories into the Allure results folder."""
+    """Start each run with an empty results folder, then add environment info and defect categories."""
     results_dir = session.config.getoption("allure_report_dir", default=None)
     if not results_dir:
         return
     results = Path(results_dir)
     results.mkdir(parents=True, exist_ok=True)
+    _empty_folder(results)
     env = {
         "Base.URL": config.BASE_URL,
         "Browser": config.BROWSER,

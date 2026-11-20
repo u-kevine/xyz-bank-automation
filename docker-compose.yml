@@ -1,0 +1,25 @@
+services:
+  selenium:
+    image: selenium/standalone-chrome:4.27.0
+    shm_size: 2gb
+    ports:
+      - "4444:4444"   # Selenium server / Grid UI
+      - "7900:7900"   # noVNC: watch the browser live (password: secret)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4444/status | grep -q '\"ready\": *true'"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+
+  tests:
+    build: .
+    depends_on:
+      selenium:
+        condition: service_healthy
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      SELENIUM_REMOTE_URL: http://selenium:4444
+      BROWSER: chrome
+      HEADLESS: "true"
+    volumes:
+      - ./allure-results:/app/allure-results
