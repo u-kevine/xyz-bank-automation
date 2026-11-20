@@ -16,11 +16,18 @@
     "valid_amounts": [1, 500, 99999],
     "invalid_amounts": [0, -100]
   },
+  "withdraw": {
+    "opening_deposit": 1000,
+    "valid_amount": 400,
+    "invalid_amounts": [0, -50]
+  },
   "messages": {
     "customer_added": "Customer added successfully",
     "duplicate_customer": "Customer may be duplicate",
     "account_created": "Account created successfully",
     "no_account": "Please open an account with us.",
-    "deposit_success": "Deposit Successful"
+    "deposit_success": "Deposit Successful",
+    "withdraw_success": "Transaction successful",
+    "withdraw_insufficient": "Transaction Failed. You can not withdraw amount more than the balance."
   }
 }

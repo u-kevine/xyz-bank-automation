@@ -87,3 +87,9 @@ class AccountPage(BasePage):
         from pages.customer_login_page import CustomerLoginPage
         self.click(self.LOGOUT)
         return CustomerLoginPage(self.driver).wait_loaded()
+
+    @allure.step("Open transactions")
+    def open_transactions(self):
+        from pages.transactions_page import TransactionsPage
+        self.click(self.TRANSACTIONS_TAB)
+        return TransactionsPage(self.driver).wait_loaded()
